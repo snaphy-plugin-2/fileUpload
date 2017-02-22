@@ -14,7 +14,18 @@ var renameFile = function (file, req){
         var extension = pattern.exec(file.type);
         try {
             if (extension.length) {
-                fileExtension = extension[1];
+                var DOCXTypePatt = /^application\/vnd\.(.+)$/; //http://stackoverflow.com/questions/4212861/what-is-a-correct-mime-type-for-docx-pptx-etc
+                var MSWord = /^application\/msword$/;
+                if(DOCXTypePatt.test(file.type)){
+                    //In case of mobile upload..
+                    fileExtension = "docx";
+                }else if(MSWord.test(file.type)){
+                    //In case of mobile upload..
+                    fileExtension = "doc";
+                }else{
+                    fileExtension = extension[1];
+                }
+
             } else {
                 var err = new Error("Error: File Extension not found");
                 console.error("Error: File Extension not found");

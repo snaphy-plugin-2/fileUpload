@@ -105,7 +105,7 @@ var getFilename = function(app, config) {
             return false;
         }
     };
-}
+};
 
 
 function setFileName(file){

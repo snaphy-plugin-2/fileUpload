@@ -400,6 +400,8 @@ var handler = function(app, provider, req, res, config, packageObj, persistentMo
             //Verify here for file type first then move to image or file upload path..
             var ImageTypePatt = /^image\/(.+)$/;
             var PDFTypePatt = /^application\/pdf$/;
+            var DOCXTypePatt = /^application\/vnd\.(.+)$/; //http://stackoverflow.com/questions/4212861/what-is-a-correct-mime-type-for-docx-pptx-etc
+            var MSWord = /^application\/msword$/;
             var OCTETSTREAM = /^application\/octet-stream$/;
 
             if(!file.type){
@@ -415,6 +417,12 @@ var handler = function(app, provider, req, res, config, packageObj, persistentMo
             }
             else if(PDFTypePatt.test(file.type)){
                 fileType = "pdf";
+            }else if(DOCXTypePatt.test(file.type)){
+                //In case of mobile upload..
+                fileType = "docx";
+            }else if(MSWord.test(file.type)){
+                //In case of mobile upload..
+                fileType = "doc";
             }else if(OCTETSTREAM.test(file.type)){
                 //In case of mobile upload..
                 fileType = "image";
@@ -437,9 +445,15 @@ var handler = function(app, provider, req, res, config, packageObj, persistentMo
                         }
                         else if(fileType === "pdf"){
                             uploadFileToCloud(app, file, fields.container, res, req, fileName, config, cb);
-                        }   
+                        }
+                        else if(fileType === "doc"){
+                            uploadFileToCloud(app, file, fields.container, res, req, fileName, config, cb);
+                        }else if(fileType === "docx"){
+                            uploadFileToCloud(app, file, fields.container, res, req, fileName, config, cb);
+                        }
                         else{
                             //ALERT Other file type not supported yet...
+                            //uploadFileToCloud(app, file, fields.container, res, req, fileName, config, cb);
                         }
 
                         //Call the callback here without waiting..
