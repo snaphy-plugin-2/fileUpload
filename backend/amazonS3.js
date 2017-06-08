@@ -1,13 +1,13 @@
 'use strict';
 var IncomingForm = require('formidable');
 var Imager = require('imager');
-var imagerConfig = require("./settings/imagerConfig");
+var imagerConfig = require("./../../../settings/fileUpload/credentials/imagerConfig");
 var fs = require("fs");
 var fileHelper = require('./helper');
 var cf = require('aws-cloudfront-sign');
 var path = require("path");
 var s3 = require('s3');
-var PRIVATE_KEY_PATH = path.join(__dirname + '/settings/pk-APKAIRRBXCH3H4AW54ZA.pem');
+
 
 //Constructor for loading amazon image s3 and cloud front..
 var init = function(server, databaseObj, helper, packageObj) {
@@ -192,7 +192,7 @@ var generateSignedUrl = function(server, databaseObj, helper, packageObj) {
                         var givedContainer = packageObj.cdn[provider].container;
                         if (givedContainer === container) {
                             if (provider === "amazon") {
-                                signedUrl = generateAmazonSignedUrl(app, file, options, packageObj.cdn[provider].keyPairId, packageObj.cdn[provider].url);
+                                signedUrl = generateAmazonSignedUrl(app, file, options, packageObj.cdn[provider].keyPairId, packageObj.cdn[provider].url, packageObj);
                             } else if (provider === "rackspace") {
                                 //TODO DO IT LATER..
                                 //
@@ -268,28 +268,36 @@ var generateSignedUrl = function(server, databaseObj, helper, packageObj) {
  * @param  {[type]} options   {type:"prefix||suffix", value: "thumb-"|| "medium_" etc}
  * @param  {[type]} keypairId [description]
  * @param  {[type]} url       [description]
+ * @param  {[type]} packageObj       [description]
  * @return {[type]}           [description]
  */
-var generateAmazonSignedUrl = function(app, file, options, keypairId, url) {
-    var time = (new Date().getTime() + (1000 * 15 * 60 * 60));
-    var cfOptions = {
-        keypairId: keypairId,
-        privateKeyPath: PRIVATE_KEY_PATH,
-        expireTime: time
-    };
-    var signedUrl;
-    if (options) {
-        if (options.type === "prefix") {
-            signedUrl = cf.getSignedUrl(url + "/" + options.value + file, cfOptions);
-        } else if (options.type === "suffix") {
-            signedUrl = cf.getSignedUrl(url + "/" + file + options.value, cfOptions);
+var generateAmazonSignedUrl = function(app, file, options, keypairId, url, packageObj) {
+    try{
+        var time = (new Date().getTime() + (1000 * 15 * 60 * 60));
+        var PRIVATE_KEY_PATH = path.join(__dirname + '../../../settings/fileUpload/credentials/' + packageObj.cdn.amazon.privateKeyFile);
+        var cfOptions = {
+            keypairId: keypairId,
+            privateKeyPath: PRIVATE_KEY_PATH,
+            expireTime: time
+        };
+        var signedUrl;
+        if (options) {
+            if (options.type === "prefix") {
+                signedUrl = cf.getSignedUrl(url + "/" + options.value + file, cfOptions);
+            } else if (options.type === "suffix") {
+                signedUrl = cf.getSignedUrl(url + "/" + file + options.value, cfOptions);
+            } else {
+                signedUrl = cf.getSignedUrl(url + "/" + file, cfOptions);
+            }
         } else {
             signedUrl = cf.getSignedUrl(url + "/" + file, cfOptions);
         }
-    } else {
-        signedUrl = cf.getSignedUrl(url + "/" + file, cfOptions);
+        return signedUrl;
     }
-    return signedUrl;
+    catch(e){
+        console.error("Error:common/plugins/fileUpload/amazons3.js: ", e.toString());
+        return null;
+    }
 };
 
 

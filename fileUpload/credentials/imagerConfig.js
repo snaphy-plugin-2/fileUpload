@@ -12,8 +12,8 @@ module.exports = {
 
     storage: {
         S3: {
-            key: 'KEY_PAIR_NAME',
-            secret: 'KEY_SECRET',
+            key: 'ACCESS_KEY_ID',
+            secret: 'ACCESS_KEY_SECRET',
             bucket: 'CONTAINER_NAME',
             storageClass: 'REDUCED_REDUNDANCY',
             secure: false, // (optional) if your BUCKET_NAME contains dot(s), set this to false. Default is `true`

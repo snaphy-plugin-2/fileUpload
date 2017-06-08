@@ -5,9 +5,10 @@
   "routeExposure": "/fileUpload",
   "cdn": {
     "amazon": {
-      "container": "CONTAINER_NAME",
-      "keyPairId": "AMAZON_KEYPAIR_ID",
-      "url": "CLOUD_FRONT_URL"
+      "container": "apexhub",
+      "keyPairId": "AMAZON_CDN_KEY_PAIR",
+      "url": "https://d3gsn1wdwk4ean.cloudfront.net",
+      "privateKeyFile": "PRIVATE_KEY_FILE_NAME_AT_PATH_/credentials/"
     }
   },
   "fileDefaultModel": "AmazonImage",
