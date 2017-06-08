@@ -12,9 +12,9 @@ module.exports = {
 
     storage: {
         S3: {
-            key: 'AKIAJ6AXZABVQRJFX7ZA',
-            secret: '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',
-            bucket: 'ainak',
+            key: 'KEY_PAIR_NAME',
+            secret: 'KEY_SECRET',
+            bucket: 'CONTAINER_NAME',
             storageClass: 'REDUCED_REDUNDANCY',
             secure: false, // (optional) if your BUCKET_NAME contains dot(s), set this to false. Default is `true`
             cdn: 'CDN_URL' // (optional) if you want to use Amazon cloudfront cdn, enter the cdn url here
