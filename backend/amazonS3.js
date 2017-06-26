@@ -340,7 +340,6 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
                         if(err){
                             return ctx.res.status(500).send(err);
                         }
-                        //console.log(url);
                         persistentModel.create({
                             name: name,
                             container: container,
