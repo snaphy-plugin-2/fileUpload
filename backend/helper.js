@@ -23,9 +23,12 @@ var renameFile = function (file, req){
                     //In case of mobile upload..
                     fileExtension = "doc";
                 }else{
-                    fileExtension = extension[1];
+                    if(file.name){
+                        fileExtension = file.name.split('.').pop();
+                    }else{
+                        fileExtension = extension[1];
+                    }
                 }
-
             } else {
                 var err = new Error("Error: File Extension not found");
                 console.error("Error: File Extension not found");
@@ -35,22 +38,19 @@ var renameFile = function (file, req){
             console.error(err);
             return err;
         }
-
         if (fileExtension === 'jpeg') {
             fileExtension = "jpg";
         }
-
     }
-
     /*if(fileExtension !== "jpg" || fileExtension !== "png" || fileExtension !== "gif"){
         fileExtension = "jpg";
     }*/
 
-    var NewFileName = '' + userId + '_' + time + '_' + UUID + '.' + fileExtension;
+    const NewFileName = '' + userId + '_' + time + '_' + UUID + '.' + fileExtension;
 
     //And the file name will be saved as defined..
     return NewFileName;
-}
+};
 
 
 function getUserId(req){
