@@ -215,14 +215,17 @@ var deleteOnUpdate = function(app, modelObj, propertyName, type, packageObj, con
                                         //first check if the image is updated or not updated..
                                         fileName = ImageArrOrObj.name;
                                         containerName = ImageArrOrObj.container;
-                                        if (ctx.currentInstance[propertyName].name !== fileName) {
-                                            //remove the file..
-                                            destroyImage(containerDb, fileName, containerName, config);
-                                            //next();
-                                        } else {
-                                            //Do nothing..
+                                        if(ctx.currentInstance[propertyName]){
+                                            if (ctx.currentInstance[propertyName].name !== fileName) {
+                                                //remove the file..
+                                                destroyImage(containerDb, fileName, containerName, config);
+                                                //next();
+                                            } else {
+                                                //Do nothing..
 
+                                            }
                                         }
+
                                     } else if (arraysEqual(type, ["object"])) {
                                         for (var i = 0; i < ImageArrOrObj.length; i++) {
                                             var ImageDetails = ImageArrOrObj[i];
@@ -230,7 +233,7 @@ var deleteOnUpdate = function(app, modelObj, propertyName, type, packageObj, con
                                             if(!fileName){
                                                 containerName = ImageDetails.container;
                                                 var currentImagePropertyDataArray = ctx.currentInstance[propertyName];
-                                                if(!currentImagePropertyDataArray){
+                                                if(currentImagePropertyDataArray){
                                                     var found = false;
                                                     //now check if the old image is present in the new one..
                                                     for(var j=0; j< currentImagePropertyDataArray.length; j++){
