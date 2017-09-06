@@ -309,7 +309,7 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
     var FileDataSource = config.fileDataSource;
     var settings = app.dataSources[FileDataSource].settings;
     Container.beforeRemote('upload', function(ctx, res, next) {
-
+        console.log("Uploading Data..");
         if (settings.provider === 'filesystem') {
             //handle the file system upload..
             next();
