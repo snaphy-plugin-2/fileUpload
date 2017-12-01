@@ -2,7 +2,7 @@ module.exports = {
     variants: {
         items: {
             resize: {
-                thumb: "300x300",
+                thumb: "200",
                 original: "100%",
                 medium: "80%",
                 small: "400"
