@@ -332,7 +332,7 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
                     if(type === "image"){
                         options = {
                             type: "prefix",
-                            value: "medium_"
+                            value: "thumb_"
                         };
                     }
                         
