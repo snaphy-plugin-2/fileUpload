@@ -48,7 +48,6 @@ var createStorageIfNotPresent = function(app) {
                 fs.mkdirSync(rootFolder);
                 console.log("Storage folder created successfully.");
             }
-
         }
 
         //Now create some container on Initialize..
