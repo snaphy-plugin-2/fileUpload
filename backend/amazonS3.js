@@ -114,31 +114,33 @@ var generateUnsignedUrl = function(server, databaseObj, helper, packageObj) {
             if (packageObj.cdn) {
                 for (var provider in packageObj.cdn) {
                     if (packageObj.cdn.hasOwnProperty(provider)) {
-                        var givedContainer = packageObj.cdn[provider].container;
-                        if (givedContainer === container) {
-                            if (provider === "amazon") {
-                                if(options){
-                                    if (options.type === "prefix") {
-                                        unSignedUrl = packageObj.cdn[provider].url +"/" + options.value + file;
-                                    }else if(options.type === "suffix"){
-                                        unSignedUrl = packageObj.cdn[provider].url +"/"  + file + options.value;
-                                    }else{
-                                        unSignedUrl = packageObj.cdn[provider].url +"/"  + file;
+                        var cdnSetting = packageObj.cdn[provider];
+                        if(cdnSetting){
+                            if(cdnSetting[container]){
+                                var containerService = cdnSetting[container];
+                                if(containerService){
+                                    if (provider === "amazon") {
+                                        if(options){
+                                            if (options.type === "prefix") {
+                                                unSignedUrl = containerService.url +"/" + options.value + file;
+                                            }else if(options.type === "suffix"){
+                                                unSignedUrl = containerService.url +"/"  + file + options.value;
+                                            }else{
+                                                unSignedUrl = containerService.url +"/"  + file;
+                                            }
+                                        }else{
+                                            unSignedUrl = containerService.url +"/"  + file;
+                                        }
+                                    } else if (provider === "rackspace") {
+                                        //TODO DO IT LATER..
+                                        //
+                                        //
+                                    } else {
+                                        //do nothing...
+
                                     }
-                                }else{
-                                    unSignedUrl = packageObj.cdn[provider].url +"/"  + file;
                                 }
-
-
-                            } else if (provider === "rackspace") {
-                                //TODO DO IT LATER..
-                                //
-                                //
-                            } else {
-                                //do nothing...
-
                             }
-
                         }
                     }
                 } //for loop.
