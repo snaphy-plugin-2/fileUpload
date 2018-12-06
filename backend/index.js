@@ -352,7 +352,8 @@ function arraysEqual(a1,a2) {
 //return all the methods that you wish to provide user to extend this plugin.
 return {
     init: init,
-    getFileName : setFileName
+    getFileName : setFileName,
+    uploadImageLocally: AmazonImage.uploadImageLocally,
 }
 
 

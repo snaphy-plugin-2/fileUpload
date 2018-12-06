@@ -3,7 +3,7 @@ const moment = require("moment");
 
 var renameFile = function (file, req){
     //var fileExtension = file.name.split(/\.$/).pop();
-    var fileExtension;
+    var fileExtension = file.name.split('.').pop();
     //var container = file.container;
     var time = moment().format("MM-DD-YYYY");
     var userId = getUserId(req);
