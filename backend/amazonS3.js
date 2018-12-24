@@ -7,7 +7,7 @@ var fileHelper = require('./helper');
 var cf = require('aws-cloudfront-sign');
 var path = require("path");
 var s3 = require('s3');
-
+var localFileConvert = require("./localFileConvert")
 
 //Constructor for loading amazon image s3 and cloud front..
 var init = function(server, databaseObj, helper, packageObj) {
@@ -32,73 +32,6 @@ var loadConfig = function(config, app, databaseObj, helper, packageObj) {
     modifyContainerUpload(app, Container, config, helper, packageObj, PersistentModel);
 
 
-};
-
-var attachUploadMethod = function(app, persistentModel, containerModel, config, helper, packageObj) {
-    persistentModel.upload = function(ctx, options, cb) {
-        if (!options) {
-            options = {};
-        }
-        ctx.req.params.container = config.defaultContainer;
-        //Now call the main upload method..of container
-        containerModel.upload(ctx.req, ctx.result, options, function(err, fileObj) {
-            if (err) {
-                console.log("Error uploading");
-                cb(err);
-            } else {
-                try {
-                    console.log("Successfully uploaded file..");
-                    var fileInfo = fileObj.files.file[0];
-                    //Now create a file and add the info..
-                    persistentModel.create({
-                        name: fileInfo.name,
-                        type: fileInfo.type,
-                        container: fileInfo.container
-                            //url: CONTAINERS_URL+fileInfo.container+'/download/'+fileInfo.name
-                    }, function(err, obj) {
-                        if (err !== null) {
-                            cb(err);
-                        } else {
-                            cb(null, obj);
-                        }
-                    });
-                } catch (err) {
-                    cb(err);
-                }
-
-            }
-        });
-    };
-
-
-
-    persistentModel.remoteMethod(
-        'upload', {
-            description: 'Uploads a file and store its configuration to this model',
-            accepts: [{
-                arg: 'ctx',
-                type: 'object',
-                http: {
-                    source: 'context'
-                }
-            }, {
-                arg: 'options',
-                type: 'object',
-                http: {
-                    source: 'query'
-                }
-            }],
-            returns: {
-                arg: 'fileObject',
-                type: 'object',
-                root: true
-            },
-            http: {
-                verb: 'post',
-                path: '/:container/upload'
-            }
-        }
-    );
 };
 
 
@@ -361,6 +294,25 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
             //Handle the file upload related to some other type..some other server type upload..proceed the default upload type..
             next();
         }      
+    });
+
+    Container.afterRemote('upload', function(ctx, res, next){
+        if (settings.provider === 'filesystem') {
+            //IF u have large image then. use this to avoid timeout..    
+            ctx.req.connection.setTimeout(16000);
+            //handle the file system upload..
+            //Convert Image to FileSystem..
+            localFileConvert.convertFile(app, config, packageObj, ctx, res)
+            .then(file=>{
+                ctx.res.send(file);
+            })
+            .error(error=>{
+                console.log("Error occured");
+                ctx.res.status(500).send(err);
+            })
+        }else{
+            next();
+        }
     });
 }; //modifyContainerUpload files..
 

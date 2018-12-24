@@ -99,7 +99,7 @@ var getFilename = function(app, config) {
         var pattern = /^image\/.+$/;
         var value = pattern.test(file.type);
         if (value) {
-            setFileName(file);
+            return setFileName(req, file);
         } else {
             res.status(403).send("FileTypeError: Only File of Image type is supported right.");
             return false;
@@ -108,12 +108,14 @@ var getFilename = function(app, config) {
 };
 
 
-function setFileName(file){
+function setFileName(req, file){
     var fileExtension = file.name.split('.').pop();
     //var container = file.container;
     var time = new Date().getTime();
-    //var query = req.query;
-    var userId = req.accessToken.userId;
+    var userId = "anonymous";
+    if(req.accessToken && req.accessToken.userId){
+        userId = req.accessToken.userId;
+    }
     var UUID = guid();
     //Now preparing the file name..
     //customerId_time_orderId.extension

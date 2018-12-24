@@ -4,12 +4,7 @@
   "activate": true,
   "routeExposure": "/fileUpload",
   "cdn": {
-    "amazon": {
-      "container": "apexhub",
-      "keyPairId": "AMAZON_CDN_KEY_PAIR",
-      "url": "https://d3gsn1wdwk4ean.cloudfront.net",
-      "privateKeyFile": "PRIVATE_KEY_FILE_NAME_AT_PATH_/credentials/"
-    }
+    
   },
   "fileDefaultModel": "AmazonImage",
   "config": [
@@ -17,23 +12,25 @@
       "fileModel": "AmazonImage",
       "containerModel": "container",
       "fileDataSource": "Image",
-      "defaultContainer": "CONTAINER_NAME",
+      "defaultContainer": "fasttrack",
       "createInitContainer": [
-        "CONTAINER_NAME"
+        "fasttrack"
       ],
-      "fileProp": [
-        {
-          "type": "image",
-          "size": 102400,
-          "bind": true,
-          "thumbPrefix": {
-            "thumb": {
-              "height": "122px",
-              "width": "200px"
-            }
+      "fileProp": {
+        "type": "image",
+        "size": 102400,
+        "bind": true,
+        "variants":{
+          "thumb": {
+            "height": "122",
+            "width": "200"
+          },
+          "medium": {
+            "height": "200",
+            "width": "200"
           }
         }
-      ]
+      }
     }
   ],
   "pluginDependencies": {}
