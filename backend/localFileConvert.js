@@ -16,7 +16,19 @@ const getLocalImageUrl = (res, fileName, containerName, prefix) => {
         fileName = prefix + fileName
     }
 
-    const url = `http://${host}/api/containers/${containerName}/download/${fileName}`
+    /*
+        {
+		    "defaultUrl" : "/api/containers/relishtourprod/download/medium_5b1f49efde677ee306fcb02a_1529390039997_6e986c5e-50ef-7bdd-423d-f4b76df0a116.jpg",
+            "unSignedUrl" : "http://d5rkhvvvxq6cw.cloudfront.net/medium_5b1f49efde677ee306fcb02a_1529390039997_6e986c5e-50ef-7bdd-423d-f4b76df0a116.jpg"
+        }
+
+    */
+
+    const url = {
+        defaultUrl: `/api/containers/${containerName}/download/${fileName}`,
+        unSignedUrl: `http://${host}/api/containers/${containerName}/download/${fileName}`
+    }
+
     return url
 }
 

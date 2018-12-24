@@ -96,8 +96,9 @@ var getFilename = function(app, config) {
     app.dataSources[FileDataSource].connector.getFilename = function(file, req, res) {
         //First checking the file type..
         var pattern = /^image\/.+$/;
+        var octetStream = "application/octet-stream"
         var value = pattern.test(file.type);
-        if (value) {
+        if (value || octetStream === file.type) {
             return setFileName(req, file);
         } else {
             res.status(403).send("FileTypeError: Only File of Image type is supported right.");
