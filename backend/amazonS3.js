@@ -47,31 +47,33 @@ var generateUnsignedUrl = function(server, databaseObj, helper, packageObj) {
             if (packageObj.cdn) {
                 for (var provider in packageObj.cdn) {
                     if (packageObj.cdn.hasOwnProperty(provider)) {
-                        var givedContainer = packageObj.cdn[provider].container;
-                        if (givedContainer === container) {
-                            if (provider === "amazon") {
-                                if(options){
-                                    if (options.type === "prefix") {
-                                        unSignedUrl = packageObj.cdn[provider].url +"/" + options.value + file;
-                                    }else if(options.type === "suffix"){
-                                        unSignedUrl = packageObj.cdn[provider].url +"/"  + file + options.value;
-                                    }else{
-                                        unSignedUrl = packageObj.cdn[provider].url +"/"  + file;
+                        var cdnSetting = packageObj.cdn[provider];
+                        if(cdnSetting){
+                            if(cdnSetting[container]){
+                                var containerService = cdnSetting[container];
+                                if(containerService){
+                                    if (provider === "amazon") {
+                                        if(options){
+                                            if (options.type === "prefix") {
+                                                unSignedUrl = containerService.url +"/" + options.value + file;
+                                            }else if(options.type === "suffix"){
+                                                unSignedUrl = containerService.url +"/"  + file + options.value;
+                                            }else{
+                                                unSignedUrl = containerService.url +"/"  + file;
+                                            }
+                                        }else{
+                                            unSignedUrl = containerService.url +"/"  + file;
+                                        }
+                                    } else if (provider === "rackspace") {
+                                        //TODO DO IT LATER..
+                                        //
+                                        //
+                                    } else {
+                                        //do nothing...
+
                                     }
-                                }else{
-                                    unSignedUrl = packageObj.cdn[provider].url +"/"  + file;
                                 }
-
-
-                            } else if (provider === "rackspace") {
-                                //TODO DO IT LATER..
-                                //
-                                //
-                            } else {
-                                //do nothing...
-
                             }
-
                         }
                     }
                 } //for loop.
@@ -236,13 +238,12 @@ var generateAmazonSignedUrl = function(app, file, options, keypairId, url, packa
 
 
 
-
 var modifyContainerUpload = function(app, Container, config, helper, packageObj, persistentModel) {
     //Get the dataSource object..
     var FileDataSource = config.fileDataSource;
     var settings = app.dataSources[FileDataSource].settings;
     Container.beforeRemote('upload', function(ctx, res, next) {
-
+        console.log("Uploading Data..");
         if (settings.provider === 'filesystem') {
             //handle the file system upload..
             next();
@@ -265,7 +266,7 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
                     if(type === "image"){
                         options = {
                             type: "prefix",
-                            value: "medium_"
+                            value: "thumb_"
                         };
                     }
                         
@@ -532,6 +533,59 @@ var uploadFileToCloud = function(app, path, container, res, req, fileName, confi
 };
 
 
+const uploadImageLocally = (server, filePath, fileName_, config, container, req) => {
+    return new Promise((resolve, reject)=> {
+        const file = {
+            name: fileName_
+        }
+
+        var fileName = fileHelper.renameFile(file, req);
+        container = config.defaultContainer;
+        imagerConfig.storage.S3.bucket = container || config.defaultContainer || imagerConfig.storage.S3.bucket;
+         //Now add the rename function..
+        imagerConfig.variants.items.rename = function() {
+            return fileName;
+        }
+        var imager = new Imager(imagerConfig, "S3") // or 'S3' for amazon
+        imager.upload([filePath], function(err, cdnUri, files) {
+            // do your stuff
+            if (err) {
+                console.error(err);
+                reject(err);
+            } else {
+                console.log("Successfully saved to the amazon server..");
+                var PersistentModel = server.models[config.fileModel];
+                var options = {};
+                options = {
+                    type: "prefix",
+                    value: "thumb_"
+                };
+        
+                PersistentModel.getUnsignedUrl (container, fileName, options, function(err, url)  {
+                    if(err){
+                       reject(err);
+                    }else{
+                        PersistentModel.create({
+                            name: fileName,
+                            container: container,
+                            url: url
+                        }, function(err, obj) {
+                            if (err) {
+                                console.log("Error occured");
+                                reject(err);
+                            } else {
+                                console.log("Successfully uploaded with file to the server..");
+                                resolve(obj);
+                            }
+                        });
+                    }
+                });
+            }
+        }, 'items');
+    });
+};
+
+
 
 
 var uploadImageToCloud = function(app, path, container, res, req, fileName, config, callback) {
@@ -582,5 +636,6 @@ var deleteLocalFile = function(path) {
 
 
 module.exports = {
-    init: init
+    init: init,
+    uploadImageLocally: uploadImageLocally,
 };

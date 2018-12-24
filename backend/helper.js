@@ -1,8 +1,11 @@
+const moment = require("moment");
+
+
 var renameFile = function (file, req){
     //var fileExtension = file.name.split(/\.$/).pop();
-    var fileExtension;
+    var fileExtension = file.name.split('.').pop();
     //var container = file.container;
-    var time = new Date().getTime();
+    var time = moment().format("MM-DD-YYYY");
     var userId = getUserId(req);
 
     var UUID = guid();
@@ -46,7 +49,7 @@ var renameFile = function (file, req){
         fileExtension = "jpg";
     }*/
 
-    const NewFileName = '' + userId + '_' + time + '_' + UUID + '.' + fileExtension;
+    const NewFileName =  time + '/' + userId + '_' + UUID + '.' + fileExtension;
 
     //And the file name will be saved as defined..
     return NewFileName;
@@ -54,7 +57,7 @@ var renameFile = function (file, req){
 
 
 function getUserId(req){
-    var userId;
+    var userId = "unauthorised";
     try{
         //var query = req.query;
         userId = req.accessToken.userId;
