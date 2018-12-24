@@ -20,6 +20,7 @@
         "type": "image",
         "size": 102400,
         "bind": true,
+        "prefix": "thumb_",
         "variants":{
           "thumb": {
             "height": "122",

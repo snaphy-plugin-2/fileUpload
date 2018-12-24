@@ -303,7 +303,7 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
             ctx.req.connection.setTimeout(16000);
             //handle the file system upload..
             //Convert Image to FileSystem..
-            localFileConvert.convertFile(app, config, packageObj, ctx, res)
+            localFileConvert.convertFile(app, config, packageObj, ctx, res, persistentModel)
             .then(file=>{
                 ctx.res.send(file);
             })

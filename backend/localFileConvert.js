@@ -6,7 +6,22 @@ const Promise = require("bluebird");
 var qt = require('quickthumb');
 
 
-const convertFile = function(app, config, packageObj, ctx, res){
+const getLocalImageUrl = (res, fileName, containerName, prefix) => {
+    const host = res.get('host')
+    const protocol = res.get("protocol");
+    const originalUrl = res.get("originalUrl");
+    console.log("Host", host, protocol, originalUrl) 
+    //http://localhost:3001/api/containers/fasttrack/download/anonymous_1545629655956_8c7a59c4-276c-8e8b-cc2a-53e157ca33cc.jpeg
+    if(prefix){
+        fileName = prefix + fileName
+    }
+
+    const url = `http://${host}/api/containers/${containerName}/download/${fileName}`
+    return url
+}
+
+
+const convertFile = function(app, config, packageObj, ctx, res, persistentModel){
     return new Promise(function(resolve, reject){
         var FileDataSource = config.fileDataSource;
         var settings = app.dataSources[FileDataSource].settings;
@@ -60,7 +75,15 @@ const convertFile = function(app, config, packageObj, ctx, res){
                 })
                 .then(done=>{
                     //Now save image to file and return the new response..
-
+                    const url = getLocalImageUrl(ctx.req, file.name, file.container, config.fileProp.prefix);
+                    return persistentModel.create({
+                        name: file.name,
+                        container: file.container,
+                        url: url
+                    })
+                })
+                .then(file=>{
+                    resolve(file);
                 })
                 .catch(error=>{
                     reject(error);
