@@ -9,6 +9,7 @@
     "aws-cloudfront-sign": "^2.0.1",
     "formidable": "^1.0.17",
     "imager": "^0.4.0",
+    "sharp": "^0.21.1",
     "lodash": "^4.15.0",
     "quickthumb": "0.0.12",
     "s3": "^4.4.0",
