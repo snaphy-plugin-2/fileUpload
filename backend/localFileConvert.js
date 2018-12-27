@@ -3,14 +3,15 @@
 'use strict';
 
 const Promise = require("bluebird");
-var qt = require('quickthumb');
+//var qt = require('quickthumb');
+const sharp = require('sharp');
 
 
 const getLocalImageUrl = (res, fileName, containerName, prefix) => {
     const host = res.get('host')
     const protocol = res.get("protocol");
     const originalUrl = res.get("originalUrl");
-    console.log("Host", host, protocol, originalUrl) 
+    //console.log("Host", host, protocol, originalUrl) 
     //http://localhost:3001/api/containers/fasttrack/download/anonymous_1545629655956_8c7a59c4-276c-8e8b-cc2a-53e157ca33cc.jpeg
     if(prefix){
         fileName = prefix + fileName
@@ -48,18 +49,49 @@ const convertFile = function(app, config, packageObj, ctx, res, persistentModel)
                 //Converting medium type file..
                 new Promise(function(resolve, reject){
                     if(config.fileProp && config.fileProp.variants.medium){
-                        qt.convert({
-                            src: file_path,
-                            dst: file_medium_path,
-                            width: config.fileProp.variants.medium.width,
-                            height: config.fileProp.variants.medium.height
-                        }, function (err, path) {
-                            if(err){
-                                reject(err)
-                            }else{
-                                resolve();
+                        const image = sharp(file_path);
+                        image
+                        .metadata()
+                        .then(metadata=>{
+                            if(metadata.format === "jpeg"){
+                                image.jpeg({quality: 30})
                             }
-                        });
+
+                            if(metadata.format === "png"){
+                                image.withoutEnlargement()
+                                image.png({compressionLevel: 3, adaptiveFiltering: true})
+                            }
+
+                            const width = config.fileProp.variants.medium.width || 300
+
+                            if(width || config.fileProp.variants.medium.height){
+                                image.resize(width, config.fileProp.variants.medium.height)
+                            }
+                            return image.toFile(file_medium_path)
+                        })
+                        .then(file=>{
+                            resolve();
+                        })
+                        .catch(error=>{
+                            reject(error);
+                        })
+
+                    //     sharp(file_path)
+                    //     //.rotate()
+                    //     // .resize(
+                    //     //     config.fileProp.variants.medium.width, 
+                    //     //     config.fileProp.variants.medium.height
+                    //     // )
+                    //     .jpeg({quality: 30})
+                    //    // .png({compressionLevel: 5})
+                    //     .toFile(file_medium_path, 
+                    //         function (err, path) {
+                    //             if(err){
+                    //                 reject(err)
+                    //             }else{
+                    //                 resolve();
+                    //             }
+                    //     } );
                     }else{
                         resolve();
                     }
@@ -68,18 +100,17 @@ const convertFile = function(app, config, packageObj, ctx, res, persistentModel)
                     //Converting thumbnail type file..
                     return new Promise(function(resolve, reject){
                         if(config.fileProp && config.fileProp.variants.thumb){
-                            qt.convert({
-                                src: file_path,
-                                dst: file_thumb_path,
-                                width: config.fileProp.variants.thumb.width,
-                                height: config.fileProp.variants.thumb.height
-                            }, function (err, path) {
-                                if(err){
-                                    reject(err)
-                                }else{
-                                    resolve();
-                                }
-                            });
+                            sharp(file_path)
+                                .rotate()
+                                .resize(config.fileProp.variants.thumb.width, config.fileProp.variants.thumb.height)
+                                .toFile(file_thumb_path, 
+                                    function (err, path) {
+                                        if(err){
+                                            reject(err)
+                                        }else{
+                                            resolve();
+                                        }
+                                } );
                         }else{
                             resolve();
                         }
