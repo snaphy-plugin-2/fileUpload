@@ -54,7 +54,7 @@ const convertFile = function(app, config, packageObj, ctx, res, persistentModel)
                         .metadata()
                         .then(metadata=>{
                             if(metadata.format === "jpeg"){
-                                image.jpeg({quality: 30})
+                                image.jpeg({quality: 40})
                             }
 
                             if(metadata.format === "png"){
