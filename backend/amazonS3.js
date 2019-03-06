@@ -30,8 +30,6 @@ var loadConfig = function(config, app, databaseObj, helper, packageObj) {
     var PersistentModel = app.models[config.fileModel];
     //Add container remote methods
     modifyContainerUpload(app, Container, config, helper, packageObj, PersistentModel);
-
-
 };
 
 
